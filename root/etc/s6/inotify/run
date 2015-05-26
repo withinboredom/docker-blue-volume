@@ -1,0 +1,5 @@
+#!/bin/bash
+
+s6-svwait -u syncthing
+
+exec inotify -dm syncthing-inotify

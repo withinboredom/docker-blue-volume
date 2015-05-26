@@ -5,6 +5,7 @@ MAINTAINER Robert Landers <landers.robert@gmail.com>
 ENV SYNCTHING_VERSION v0.11.6
 ENV SYNCTHING_CLI_VERSION unknown
 ENV FILEWATCH_VERSION v0.6.3
+ENV VOL all
 
 RUN curl -sSLO https://github.com/syncthing/syncthing/releases/download/${SYNCTHING_VERSION}/syncthing-linux-amd64-${SYNCTHING_VERSION}.tar.gz && \
     tar -xvf syncthing-linux-amd64-${SYNCTHING_VERSION}.tar.gz && \
