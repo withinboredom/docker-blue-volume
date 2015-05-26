@@ -1,3 +1,8 @@
 #!/bin/bash
 
+if [ "$VOL" == "any" ]
+then
+	VOL="default"
+fi
+
 exec syncthing -gui-address="0.0.0.0:8080" -no-browser

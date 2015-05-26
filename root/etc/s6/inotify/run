@@ -2,4 +2,6 @@
 
 s6-svwait -u syncthing
 
+echo "Syncing $VOL"
+
 exec inotify -dm syncthing-inotify
