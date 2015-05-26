@@ -24,6 +24,10 @@ RUN curl -sSLO https://github.com/syncthing/syncthing-inotify/releases/download/
 
 RUN echo fs.inotify.max_user_watches=204800\n >> /etc/sysctl.conf
 
+RUN curl -sSLO http://stedolan.github.io/jq/download/linux64/jq && \
+	chmod +x jq && \
+	mv jq /usr/local/bin/jq
+
 VOLUME ["/data"]
 
 WORKDIR /data
