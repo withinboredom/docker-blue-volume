@@ -13,5 +13,12 @@
         }
       ]
     }
+  ],
+  "watches": [
+    {
+      "type": "keyprefix",
+      "prefix": "sync/device/",
+      "handler": "/usr/bin/device_handler.sh"
+    }
   ]
 }
