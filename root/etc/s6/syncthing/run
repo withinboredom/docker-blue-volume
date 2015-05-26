@@ -1,5 +1,7 @@
 #!/bin/bash
 
+s6-svcwait -u consul
+
 if [ "$VOL" == "any" ]
 then
 	VOL="default"
