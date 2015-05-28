@@ -1,6 +1,8 @@
 #!/bin/bash
 
-s6-svcwait -u consul
+echo s6-svok /etc/s6/consul
+
+s6-svwait -u /etc/s6/consul
 
 if [ "$VOL" == "any" ]
 then
