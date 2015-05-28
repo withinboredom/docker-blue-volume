@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "Waiting for syncthing to come online"
+s6-svwait /etc/s6/syncthing
+sleep 30
+
+id=$(syncthing-cli id)
+curl -X PUT -d "online" http://127.0.0.1:8500/v1/kv/sync/device/$id
+
+echo "device added to pool"

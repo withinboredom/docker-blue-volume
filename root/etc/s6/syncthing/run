@@ -1,12 +1,23 @@
 #!/bin/bash
 
-echo s6-svok /etc/s6/consul
+s6-svok /etc/s6/consul
 
-s6-svwait -u /etc/s6/consul
+case "$?" in
+	0)
+		echo "Monitoring consul, continuing"
+		;;
+	1)
+		echo "Monitoring failed ... restarting"
+		exit 1
+		;;
+esac
+
+s6-svwait -U /etc/s6/consul
 
 if [ "$VOL" == "any" ]
 then
 	VOL="default"
 fi
 
-exec syncthing -gui-address="0.0.0.0:8080" -no-browser
+#exec s6-notifywhenup syncthing -gui-address="0.0.0.0:8080" -no-browser | tee /dev/stderr
+exec s6-notifywhenup -d 2 ./creature.sh
