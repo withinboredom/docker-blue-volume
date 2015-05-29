@@ -16,7 +16,7 @@ s6-svwait -U /etc/s6/consul
 
 if [ "$VOL" == "any" ]
 then
-	VOL="default"
+	export VOL="default"
 fi
 
 #exec s6-notifywhenup syncthing -gui-address="0.0.0.0:8080" -no-browser | tee /dev/stderr

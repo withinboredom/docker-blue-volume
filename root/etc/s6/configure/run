@@ -4,7 +4,46 @@ echo "Waiting for syncthing to come online"
 s6-svwait /etc/s6/syncthing
 sleep 30
 
+# get information about this node
 id=$(syncthing-cli id)
-curl -X PUT -d "online" http://127.0.0.1:8500/v1/kv/sync/device/$id
+currentIp=`ip route get 8.8.8.8 | awk 'NR==1 {print $NF}'`
+
+# find other nodes
+peers_string=$(dig @127.0.0.1 -p 8600 syncthing.service.local.consul +short)
+peers=($peers_string)
+ids=($(curl http://127.0.0.1:8500/v1/kv/sync/device?recurse | jq --raw-output '.[] | .Key | match("sync/device/(.*)") | .captures[].string'))
+
+curl -X PUT -d "" http://127.0.0.1:8500/v1/kv/sync/device/$id
+
+# configure default volume for any
+if [ "$VOL" == "all" ]
+then
+	export VOL="default"
+fi
+
+# set volume sync
+syncthing-cli folders remove default
+mkdir /data/Sync
+syncthing-cli folders add $VOL /data/Sync
+
+echo
+
+# configure this node with all its peers
+for peer in "${ids[@]}"
+do
+	echo "Adding $peer"
+	syncthing-cli devices add $peer
+	syncthing-cli folders devices add $VOL $peer
+done
+
+syncthing-cli restart
+
+for peer in "${peers[@]}"
+do
+	echo "Adding self to $peer"
+	syncthing-cli -e "http://$peer:8080" devices add $id
+	syncthing-cli -e "http://$peer:8080" folders devices add $VOL $id
+	syncthing-cli -e "http://$peer:8080" restart
+done
 
 echo "device added to pool"
