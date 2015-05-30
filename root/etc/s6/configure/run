@@ -4,6 +4,12 @@ echo "Waiting for syncthing to come online"
 s6-svwait /etc/s6/syncthing
 sleep 30
 
+echo "Setting default options"
+syncthing-cli options set globalannenabled true
+syncthing-cli options set globalannserver sdiscovery.service.consul:22026
+syncthing-cli options set reporting false
+syncthing-cli options set upnp false
+
 # get information about this node
 id=$(syncthing-cli id)
 currentIp=`ip route get 8.8.8.8 | awk 'NR==1 {print $NF}'`
@@ -21,10 +27,45 @@ then
 	export VOL="default"
 fi
 
+if [ -f /data/synced ]
+then
+	$old_share = $(cat /data/synced)
+	if [ "$old_share" == "$VOL" ]
+	then
+		echo "Not reconfiguring an already configured device"
+		exit 0
+	fi
+
+	echo "Reconfiguring for a new volume"
+
+	for peer in "$peers[@]"
+	do
+		echo "Removing self from $peer"
+		syncthing-cli -e "http://$peer:8080" folders devices remove $VOL $id
+		syncthing-cli -e "http://$peer:8080" devices remove $VOL $id
+		syncthing-cli -e "http://$peer:8080" restart
+	done
+
+	for peer in "${ids[@]}"
+	do
+		echo "Removing peer: $peer"
+		syncthing-cli folders devices remove $VOL $peer
+		syncthing-cli devices remove $peer
+	done
+
+	syncthing-cli folders remove $VOL
+	syncthing-cli restart
+	sleep 10
+fi
+
+# don't try to reconfigure
+echo "$VOL" > /data/synced
+
 # set volume sync
 syncthing-cli folders remove default
 mkdir /data/Sync
 syncthing-cli folders add $VOL /data/Sync
+syncthing-cli folders set $VOL rescan 86400
 
 echo
 
