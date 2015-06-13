@@ -4,4 +4,13 @@ s6-svwait -U /etc/s6/syncthing
 
 echo "Syncing $VOL"
 
+check=7
+
+while [ $check -ne 0 ]
+do
+	curl -s -o /dev/null 127.0.0.1:8080
+	check=$?
+	sleep 3
+done
+
 exec syncthing-inotify -target="http://127.0.0.1:8080"

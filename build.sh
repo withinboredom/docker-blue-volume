@@ -4,6 +4,6 @@
 #/vagrant/consul-ui/build.sh
 #/vagrant/consul-agent/build.sh
 
-
-docker build -t withinboredom/blue-volume blue-volume
+docker tag -f withinboredom/consul-agent withinboredom/blue-volume:base
+docker build -t withinboredom/blue-volume:latest blue-volume
 #docker push withinboredom/blue-volume

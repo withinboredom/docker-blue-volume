@@ -1,14 +1,60 @@
 #!/bin/bash
 
+function waitForLock() {
+	craft=$1
+	session=$(curl -X PUT -d '{"Name": "sync"}' http://localhost:8500/v1/session/create)
+	session_id=$(echo $session | jq --raw-output ".ID")
+
+	got_lock="false"
+
+	while [ "$got_lock" == "false" ]
+	do
+		sleep 3
+		got_lock=$(curl -X PUT -d '[restarting]' http://localhost:8500/v1/kv/sync/$craft?aquire=$session_id)
+	done
+}
+
+function killSession() {
+	craft=$1
+	session_id=$2
+	curl -X PUT http://localhost:8500/v1/kv/sync/$craft?release=$session_id
+}
+
+waitForLock configure
+
+doRestart="FALSE"
+
+function enqueRestart() {
+	doRestart="TRUE"
+}
+
+function goRestart() {
+	if [ "$doRestart" == "TRUE" ]
+	then
+		consul event -name "sync:restart" -service syncthing $VOL
+	fi
+}
+
 echo "Waiting for syncthing to come online"
 s6-svwait /etc/s6/syncthing
-sleep 30
+
+check=7
+
+while [ $check -ne 0 ]
+do
+	curl -s -o /dev/null 127.0.0.1:8080
+	check=$?
+	sleep 3
+done
 
 echo "Setting default options"
 syncthing-cli options set globalannenabled true
-syncthing-cli options set globalannserver sdiscovery.service.consul:22026
+if [ "$ALLOW_GLOBAL" == "false" ]
+then
+	syncthing-cli options set globalannserver sdiscovery.service.consul:22026
+	syncthing-cli options set upnp false
+fi
 syncthing-cli options set reporting false
-syncthing-cli options set upnp false
 
 # get information about this node
 id=$(syncthing-cli id)
@@ -43,7 +89,7 @@ then
 		echo "Removing self from $peer"
 		syncthing-cli -e "http://$peer:8080" folders devices remove $VOL $id
 		syncthing-cli -e "http://$peer:8080" devices remove $VOL $id
-		syncthing-cli -e "http://$peer:8080" restart
+		enqueRestart
 	done
 
 	for peer in "${ids[@]}"
@@ -54,7 +100,7 @@ then
 	done
 
 	syncthing-cli folders remove $VOL
-	syncthing-cli restart
+	enqueRestart
 	sleep 10
 fi
 
@@ -63,8 +109,8 @@ echo "$VOL" > /data/synced
 
 # set volume sync
 syncthing-cli folders remove default
-mkdir /data/Sync
-syncthing-cli folders add $VOL /data/Sync
+mkdir $VOL_LOCATION
+syncthing-cli folders add $VOL $VOL_LOCATION
 syncthing-cli folders set $VOL rescan 86400
 
 echo
@@ -77,14 +123,16 @@ do
 	syncthing-cli folders devices add $VOL $peer
 done
 
-syncthing-cli restart
+enqueRestart
 
 for peer in "${peers[@]}"
 do
 	echo "Adding self to $peer"
 	syncthing-cli -e "http://$peer:8080" devices add $id
 	syncthing-cli -e "http://$peer:8080" folders devices add $VOL $id
-	syncthing-cli -e "http://$peer:8080" restart
+	enqueRestart
 done
 
-echo "device added to pool"
+echo "device added to pool, sending restart command"
+goRestart
+killSession configure $session_id

@@ -2,11 +2,13 @@ FROM withinboredom/consul-agent
 
 MAINTAINER Robert Landers <landers.robert@gmail.com>
 
-ENV SYNCTHING_VERSION v0.11.7
+ENV SYNCTHING_VERSION v0.11.8
 ENV SYNCTHING_CLI_VERSION unknown
-ENV FILEWATCH_VERSION v0.6.3
-ENV VOL all
+ENV FILEWATCH_VERSION v0.6.4
+ENV VOL default
 ENV STENDPOINT "http://127.0.0.1:8080"
+ENV ALLOW_GLOBAL "false"
+ENV VOL_LOCATION "/data/Sync"
 
 RUN curl -sSLO https://github.com/syncthing/syncthing/releases/download/${SYNCTHING_VERSION}/syncthing-linux-amd64-${SYNCTHING_VERSION}.tar.gz && \
     tar -xvf syncthing-linux-amd64-${SYNCTHING_VERSION}.tar.gz && \
@@ -29,8 +31,6 @@ RUN curl -sSLO https://github.com/syncthing/syncthing/releases/download/${SYNCTH
 	mv jq-linux-x86_64-static jq && \
 	chmod +x jq && \
 	mv jq /usr/local/bin/jq
-
-VOLUME ["/data/Sync"]
 
 WORKDIR /data
 

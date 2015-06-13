@@ -19,6 +19,11 @@
       "type": "keyprefix",
       "prefix": "sync/device/",
       "handler": "/usr/bin/device_handler.sh"
+    },
+    {
+      "type": "event",
+      "name": "sync:restart",
+      "handler": "/usr/bin/restart_coordination.sh"
     }
   ]
 }
