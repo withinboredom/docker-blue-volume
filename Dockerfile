@@ -25,12 +25,12 @@ RUN curl -sSLO https://github.com/syncthing/syncthing/releases/download/${SYNCTH
 	tar -xvf syncthing-inotify-linux-amd64-${FILEWATCH_VERSION}.tar.gz && \
 	mv syncthing-inotify /usr/local/bin/syncthing-inotify && \
 
-	echo fs.inotify.max_user_watches=204800\n >> /etc/sysctl.conf && \
-
 	curl -sSLO https://github.com/stedolan/jq/releases/download/jq-1.5rc1/jq-linux-x86_64-static && \
 	mv jq-linux-x86_64-static jq && \
 	chmod +x jq && \
 	mv jq /usr/local/bin/jq
+
+RUN echo fs.inotify.max_user_watches=524288\n >> /etc/sysctl.conf && sysctl -p
 
 WORKDIR /data
 
