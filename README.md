@@ -2,7 +2,7 @@ Part of the Monk Suite
 
 # Blue Volume
 
-BV is an answer to distributed storage. Instead of using NFS, Ceph, or those other guys, this uses syncthing -- a bittorrent based file syncronizer.
+BV is an answer to distributed storage. Instead of using NFS, Ceph, or those other guys, this uses syncthing -- a bittorrent inspired file syncronizer.
 
 # How to use it
 
