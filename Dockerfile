@@ -2,7 +2,7 @@ FROM withinboredom/consul-agent
 
 MAINTAINER Robert Landers <landers.robert@gmail.com>
 
-ENV SYNCTHING_VERSION v0.11.23
+ENV SYNCTHING_VERSION v0.11.25
 ENV SYNCTHING_CLI_VERSION unknown
 ENV FILEWATCH_VERSION v0.6.7
 ENV VOL default
