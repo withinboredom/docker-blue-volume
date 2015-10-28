@@ -2,8 +2,8 @@ FROM withinboredom/consul-agent
 
 MAINTAINER Robert Landers <landers.robert@gmail.com>
 
-ENV SYNCTHING_VERSION v0.11.25
-ENV SYNCTHING_CLI_VERSION unknown
+ENV SYNCTHING_VERSION v0.11.26
+ENV SYNCTHING_CLI_VERSION 1460
 ENV FILEWATCH_VERSION v0.6.7
 ENV VOL default
 ENV STENDPOINT "http://127.0.0.1:8080"
@@ -16,7 +16,7 @@ RUN curl -sSLO https://github.com/syncthing/syncthing/releases/download/${SYNCTH
     mv syncthing /usr/local/bin/syncthing && \
     mkdir -p /data && \
 
-	curl -sSLO http://build.syncthing.net/job/syncthing-cli/lastSuccessfulBuild/artifact/syncthing-cli-linux-amd64.tar.gz && \
+	curl -sSLO http://build.syncthing.net/job/syncthing-cli/$SYNCTHING_CLI_VERSION/artifact/syncthing-cli-linux-amd64.tar.gz && \
 	tar -xvf syncthing-cli-linux-amd64.tar.gz && \
 	cd syncthing-cli-linux-amd64 && \
 	mv syncthing-cli /usr/local/bin/syncthing-cli && \
